@@ -321,6 +321,20 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
             ThrowIfDisposed();
             return Roles.FirstOrDefaultAsync(r => r.NormalizedName == normalizedName, cancellationToken);
         }
+        
+        /// <summary>
+        /// Gets the role who has the specified ID as an asynchronous operation.
+        /// </summary>
+        /// <param name="id">The role ID to look for.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>A <see cref="Task{TResult}"/> that result of the look up.</returns>
+        public virtual Task<TRole> GetByIdAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            var roleId = ConvertIdFromString(id);
+            return Roles.Include(r => r.Claims).Include(r => r.Users).FirstOrDefaultAsync(u => u.Id.Equals(roleId), cancellationToken);
+        }
 
         /// <summary>
         /// Get a role's normalized name as an asynchronous operation.
