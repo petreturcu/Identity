@@ -465,6 +465,15 @@ namespace Microsoft.AspNetCore.Identity.InMemory
                     Roles.SingleOrDefault(r => String.Equals(r.NormalizedName, roleName, StringComparison.OrdinalIgnoreCase)));
         }
 
+        Task<TRole> IRoleStore<TRole>.GetByIdAsync(string roleId, CancellationToken cancellationToken)
+        {
+            if (_roles.ContainsKey(roleId))
+            {
+                return Task.FromResult(_roles[roleId]);
+            }
+            return Task.FromResult<TRole>(null);
+        }
+
         public Task<IList<Claim>> GetClaimsAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
             var claims = role.Claims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToList();

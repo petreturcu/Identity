@@ -95,5 +95,13 @@ namespace Microsoft.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that result of the look up.</returns>
         Task<TRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the role who has the specified ID as an asynchronous operation.
+        /// </summary>
+        /// <param name="roleId">The role ID to look for.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>A <see cref="Task{TResult}"/> that result of the look up.</returns>
+        Task<TRole> GetByIdAsync(string roleId, CancellationToken cancellationToken);
     }
 }

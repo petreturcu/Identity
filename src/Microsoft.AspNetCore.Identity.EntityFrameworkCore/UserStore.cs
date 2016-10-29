@@ -477,6 +477,22 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
         }
 
         /// <summary>
+        /// Gets and returns a user, if any, who has the specified <paramref name="userId"/>.
+        /// </summary>
+        /// <param name="userId">The user ID to search for.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId"/> if it exists.
+        /// </returns>
+        public virtual Task<TUser> GetByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            var id = ConvertIdFromString(userId);
+            return UsersSet.Include(u => u.Claims).Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id.Equals(id), cancellationToken);
+        }
+
+        /// <summary>
         /// Converts the provided <paramref name="id"/> to a strongly typed key object.
         /// </summary>
         /// <param name="id">The id to convert.</param>

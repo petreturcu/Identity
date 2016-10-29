@@ -286,6 +286,11 @@ namespace Microsoft.AspNetCore.Identity.Test
             {
                 throw new NotImplementedException();
             }
+
+            Task<TestRole> IRoleStore<TestRole>.GetByIdAsync(string roleName, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private class MySignInManager : SignInManager<TestUser>

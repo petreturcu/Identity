@@ -38,6 +38,11 @@ namespace Microsoft.AspNetCore.Identity.Test
             return Task.FromResult<TestRole>(null);
         }
 
+        public Task<TestRole> GetByIdAsync(string roleId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return Task.FromResult<TestRole>(null);
+        }
+
         public void Dispose()
         {
         }
