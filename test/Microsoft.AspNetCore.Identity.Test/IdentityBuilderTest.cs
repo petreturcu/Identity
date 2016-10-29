@@ -202,6 +202,11 @@ namespace Microsoft.AspNetCore.Identity.Test
                 throw new NotImplementedException();
             }
 
+            public Task<TestUser> GetByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                throw new NotImplementedException();
+            }
+
             public Task<string> GetNormalizedRoleNameAsync(TestRole role, CancellationToken cancellationToken = default(CancellationToken))
             {
                 throw new NotImplementedException();

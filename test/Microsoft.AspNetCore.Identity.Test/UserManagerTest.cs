@@ -1063,6 +1063,13 @@ namespace Microsoft.AspNetCore.Identity.Test
                 return Task.FromResult<TestUser>(null);
             }
 
+            public Task<TestUser> GetByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                return Task.FromResult<TestUser>(null);
+            }
+
+
+
             public Task SetPasswordHashAsync(TestUser user, string passwordHash, CancellationToken cancellationToken = default(CancellationToken))
             {
                 return Task.FromResult(0);
@@ -1335,6 +1342,11 @@ namespace Microsoft.AspNetCore.Identity.Test
             }
 
             public Task<TestUser> FindByNameAsync(string userName, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<TestUser> GetByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
             {
                 throw new NotImplementedException();
             }

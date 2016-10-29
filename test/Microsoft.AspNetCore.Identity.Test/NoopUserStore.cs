@@ -44,6 +44,11 @@ namespace Microsoft.AspNetCore.Identity.Test
             return Task.FromResult<TestUser>(null);
         }
 
+        public Task<TestUser> GetByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return Task.FromResult<TestUser>(null);
+        }
+
         public void Dispose()
         {
         }

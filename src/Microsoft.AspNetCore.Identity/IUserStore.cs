@@ -98,5 +98,15 @@ namespace Microsoft.AspNetCore.Identity
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
         /// </returns>
         Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets a user, if any, who has the specified <paramref name="userId"/>.
+        /// </summary>
+        /// <param name="userId">The user ID to search for.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId"/> if it exists.
+        /// </returns>
+        Task<TUser> GetByIdAsync(string userId, CancellationToken cancellationToken);
     }
 }

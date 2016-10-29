@@ -247,6 +247,15 @@ namespace Microsoft.AspNetCore.Identity.InMemory
             return Task.FromResult<TUser>(null);
         }
 
+        public Task<TUser> GetByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (_users.ContainsKey(userId))
+            {
+                return Task.FromResult(_users[userId]);
+            }
+            return Task.FromResult<TUser>(null);
+        }
+
         public void Dispose()
         {
         }
