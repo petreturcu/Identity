@@ -69,27 +69,27 @@ namespace Microsoft.AspNetCore.Identity
         /// <value>
         /// The <see cref="ILogger"/> used to log messages from the manager.
         /// </value>
-        protected internal virtual ILogger Logger { get; set; }
+        public virtual ILogger Logger { get; set; }
 
         /// <summary>
         /// The <see cref="UserManager{TUser}"/> used.
         /// </summary>
-        protected internal UserManager<TUser> UserManager { get; set; }
+        public UserManager<TUser> UserManager { get; set; }
 
         /// <summary>
         /// The <see cref="IUserClaimsPrincipalFactory{TUser}"/> used.
         /// </summary>
-        protected internal IUserClaimsPrincipalFactory<TUser> ClaimsFactory { get; set; }
+        public IUserClaimsPrincipalFactory<TUser> ClaimsFactory { get; set; }
 
         /// <summary>
         /// The <see cref="IdentityOptions"/> used.
         /// </summary>
-        protected internal IdentityOptions Options { get; set; }
+        public IdentityOptions Options { get; set; }
 
         /// <summary>
         /// The <see cref="HttpContext"/> used.
         /// </summary>
-        protected internal HttpContext Context { 
+        public HttpContext Context { 
             get
             {
                 var context = _context ?? _contextAccessor?.HttpContext;
@@ -301,10 +301,6 @@ namespace Microsoft.AspNetCore.Identity
                 return error;
             }
 
-            if (await IsLockedOut(user))
-            {
-                return await LockedOut(user);
-            }
             if (await UserManager.CheckPasswordAsync(user, password))
             {
                 await ResetLockout(user);
@@ -367,6 +363,92 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <summary>
+        /// Signs in the user without two factor authentication using a two factor recovery code.
+        /// </summary>
+        /// <param name="recoveryCode">The two factor recovery code.</param>
+        /// <returns></returns>
+        public virtual async Task<SignInResult> TwoFactorRecoveryCodeSignInAsync(string recoveryCode)
+        {
+            var twoFactorInfo = await RetrieveTwoFactorInfoAsync();
+            if (twoFactorInfo == null || twoFactorInfo.UserId == null)
+            {
+                return SignInResult.Failed;
+            }
+            var user = await UserManager.FindByIdAsync(twoFactorInfo.UserId);
+            if (user == null)
+            {
+                return SignInResult.Failed;
+            }
+
+            var result = await UserManager.RedeemTwoFactorRecoveryCodeAsync(user, recoveryCode);
+            if (result.Succeeded)
+            {
+                await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent: false, rememberClient: false);
+                return SignInResult.Success;
+            }
+
+            // We don't protect against brute force attacks since codes are expected to be random.
+            return SignInResult.Failed;
+        }
+
+        private async Task DoTwoFactorSignInAsync(TUser user, TwoFactorAuthenticationInfo twoFactorInfo, bool isPersistent, bool rememberClient)
+        {
+            // When token is verified correctly, clear the access failed count used for lockout
+            await ResetLockout(user);
+
+            // Cleanup external cookie
+            if (twoFactorInfo.LoginProvider != null)
+            {
+                await Context.Authentication.SignOutAsync(Options.Cookies.ExternalCookieAuthenticationScheme);
+            }
+            // Cleanup two factor user id cookie
+            await Context.Authentication.SignOutAsync(Options.Cookies.TwoFactorUserIdCookieAuthenticationScheme);
+            if (rememberClient)
+            {
+                await RememberTwoFactorClientAsync(user);
+            }
+            await SignInAsync(user, isPersistent, twoFactorInfo.LoginProvider);
+        }
+
+        /// <summary>
+        /// Validates the sign in code from an authenticator app and creates and signs in the user, as an asynchronous operation.
+        /// </summary>
+        /// <param name="code">The two factor authentication code to validate.</param>
+        /// <param name="isPersistent">Flag indicating whether the sign-in cookie should persist after the browser is closed.</param>
+        /// <param name="rememberClient">Flag indicating whether the current browser should be remember, suppressing all further 
+        /// two factor authentication prompts.</param>
+        /// <returns>The task object representing the asynchronous operation containing the <see name="SignInResult"/>
+        /// for the sign-in attempt.</returns>
+        public virtual async Task<SignInResult> TwoFactorAuthenticatorSignInAsync(string code, bool isPersistent, bool rememberClient)
+        {
+            var twoFactorInfo = await RetrieveTwoFactorInfoAsync();
+            if (twoFactorInfo == null || twoFactorInfo.UserId == null)
+            {
+                return SignInResult.Failed;
+            }
+            var user = await UserManager.FindByIdAsync(twoFactorInfo.UserId);
+            if (user == null)
+            {
+                return SignInResult.Failed;
+            }
+
+            var error = await PreSignInCheck(user);
+            if (error != null)
+            {
+                return error;
+            }
+
+            if (await UserManager.VerifyTwoFactorTokenAsync(user, Options.Tokens.AuthenticatorTokenProvider, code))
+            {
+                await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
+                return SignInResult.Success;
+            }
+            // If the token is incorrect, record the failure which also may cause the user to be locked out
+            await UserManager.AccessFailedAsync(user);
+            return SignInResult.Failed;
+        }
+
+        /// <summary>
         /// Validates the two faction sign in code and creates and signs in the user, as an asynchronous operation.
         /// </summary>
         /// <param name="provider">The two factor authentication provider to validate the code against.</param>
@@ -397,21 +479,7 @@ namespace Microsoft.AspNetCore.Identity
             }
             if (await UserManager.VerifyTwoFactorTokenAsync(user, provider, code))
             {
-                // When token is verified correctly, clear the access failed count used for lockout
-                await ResetLockout(user);
-                // Cleanup external cookie
-                if (twoFactorInfo.LoginProvider != null)
-                {
-                    await Context.Authentication.SignOutAsync(Options.Cookies.ExternalCookieAuthenticationScheme);
-                }
-                // Cleanup two factor user id cookie
-                await Context.Authentication.SignOutAsync(Options.Cookies.TwoFactorUserIdCookieAuthenticationScheme);
-                if (rememberClient)
-                {
-                    await RememberTwoFactorClientAsync(user);
-                }
-                await UserManager.ResetAccessFailedCountAsync(user);
-                await SignInAsync(user, isPersistent, twoFactorInfo.LoginProvider);
+                await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
                 return SignInResult.Success;
             }
             // If the token is incorrect, record the failure which also may cause the user to be locked out
@@ -602,7 +670,6 @@ namespace Microsoft.AspNetCore.Identity
             }
             return identity;
         }
-
 
         private async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false)
         {

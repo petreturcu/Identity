@@ -14,7 +14,7 @@ namespace Microsoft.AspNetCore.Identity
         /// <summary>
         /// Returns the default <see cref="IdentityError"/>.
         /// </summary>
-        /// <returns>The default <see cref="IdentityError"/>,</returns>
+        /// <returns>The default <see cref="IdentityError"/>.</returns>
         public virtual IdentityError DefaultError()
         {
             return new IdentityError
@@ -60,6 +60,19 @@ namespace Microsoft.AspNetCore.Identity
             {
                 Code = nameof(InvalidToken),
                 Description = Resources.InvalidToken
+            };
+        }
+
+        /// <summary>
+        /// Returns an <see cref="IdentityError"/> indicating a recovery code was not redeemed.
+        /// </summary>
+        /// <returns>An <see cref="IdentityError"/> indicating a recovery code was not redeemed.</returns>
+        public virtual IdentityError RecoveryCodeRedemptionFailed()
+        {
+            return new IdentityError
+            {
+                Code = nameof(RecoveryCodeRedemptionFailed),
+                Description = Resources.RecoveryCodeRedemptionFailed
             };
         }
 

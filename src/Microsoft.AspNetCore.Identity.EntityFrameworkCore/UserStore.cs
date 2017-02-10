@@ -69,7 +69,7 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
     /// <typeparam name="TRole">The type representing a role.</typeparam>
     /// <typeparam name="TContext">The type of the data context class used to access the store.</typeparam>
     /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
-    public class UserStore<TUser, TRole, TContext, TKey> : UserStore<TUser, TRole, TContext, TKey, IdentityUserClaim<TKey>, IdentityUserRole<TKey>, IdentityUserLogin<TKey>, IdentityUserToken<TKey>>
+    public class UserStore<TUser, TRole, TContext, TKey> : UserStore<TUser, TRole, TContext, TKey, IdentityUserClaim<TKey>, IdentityUserRole<TKey>, IdentityUserLogin<TKey>, IdentityUserToken<TKey>, IdentityRoleClaim<TKey>>
         where TUser : IdentityUser<TKey>
         where TRole : IdentityRole<TKey>
         where TContext : DbContext
@@ -81,102 +81,7 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
         /// <param name="context">The <see cref="DbContext"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public UserStore(TContext context, IdentityErrorDescriber describer = null) : base(context, describer) { }
-
-        /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserRole{TKey}"/>.
-        /// </summary>
-        /// <param name="user">The associated user.</param>
-        /// <param name="role">The associated role.</param>
-        /// <returns></returns>
-        protected override IdentityUserRole<TKey> CreateUserRole(TUser user, TRole role)
-        {
-            return new IdentityUserRole<TKey>()
-            {
-                UserId = user.Id,
-                RoleId = role.Id
-            };
-        }
-
-        /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserClaim{TKey}"/>.
-        /// </summary>
-        /// <param name="user">The associated user.</param>
-        /// <param name="claim">The associated claim.</param>
-        /// <returns></returns>
-        protected override IdentityUserClaim<TKey> CreateUserClaim(TUser user, Claim claim)
-        {
-            var userClaim = new IdentityUserClaim<TKey> { UserId = user.Id };
-            userClaim.InitializeFromClaim(claim);
-            return userClaim;
-        }
-
-        /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserLogin{TKey}"/>.
-        /// </summary>
-        /// <param name="user">The associated user.</param>
-        /// <param name="login">The sasociated login.</param>
-        /// <returns></returns>
-        protected override IdentityUserLogin<TKey> CreateUserLogin(TUser user, UserLoginInfo login)
-        {
-            return new IdentityUserLogin<TKey>
-            {
-                UserId = user.Id,
-                ProviderKey = login.ProviderKey,
-                LoginProvider = login.LoginProvider,
-                ProviderDisplayName = login.ProviderDisplayName
-            };
-        }
-
-        /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserToken{TKey}"/>.
-        /// </summary>
-        /// <param name="user">The associated user.</param>
-        /// <param name="loginProvider">The associated login provider.</param>
-        /// <param name="name">The name of the user token.</param>
-        /// <param name="value">The value of the user token.</param>
-        /// <returns></returns>
-        protected override IdentityUserToken<TKey> CreateUserToken(TUser user, string loginProvider, string name, string value)
-        {
-            return new IdentityUserToken<TKey>
-            {
-                UserId = user.Id,
-                LoginProvider = loginProvider,
-                Name = name,
-                Value = value
-            };
-        }
     }
-
-    /// <summary>
-    /// Represents a new instance of a persistence store for the specified user and role types.
-    /// </summary>
-    /// <typeparam name="TUser">The type representing a user.</typeparam>
-    /// <typeparam name="TRole">The type representing a role.</typeparam>
-    /// <typeparam name="TContext">The type of the data context class used to access the store.</typeparam>
-    /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
-    /// <typeparam name="TUserClaim">The type representing a claim.</typeparam>
-    /// <typeparam name="TUserRole">The type representing a user role.</typeparam>
-    /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
-    /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
-    public abstract class UserStore<TUser, TRole, TContext, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken> :
-        UserStore<TUser, TRole, TContext, TKey,TUserClaim, TUserRole, TUserLogin, TUserToken, IdentityRoleClaim<TKey>>
-        where TUser : IdentityUser<TKey, TUserClaim, TUserRole, TUserLogin>
-        where TRole : IdentityRole<TKey, TUserRole, IdentityRoleClaim<TKey>>
-        where TContext : DbContext
-        where TKey : IEquatable<TKey>
-        where TUserClaim : IdentityUserClaim<TKey>
-        where TUserRole : IdentityUserRole<TKey>
-        where TUserLogin : IdentityUserLogin<TKey>
-        where TUserToken : IdentityUserToken<TKey>
-    {
-        /// <summary>
-        /// Creates a new instance of <see cref="UserStore"/>.
-        /// </summary>
-        /// <param name="context">The context used to access the store.</param>
-        /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public UserStore(TContext context, IdentityErrorDescriber describer = null) : base(context, describer) { }
-    }
-
 
     /// <summary>
     /// Represents a new instance of a persistence store for the specified user and role types.
@@ -190,7 +95,7 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     /// <typeparam name="TRoleClaim">The type representing a role claim.</typeparam>
-    public abstract class UserStore<TUser, TRole, TContext, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
+    public class UserStore<TUser, TRole, TContext, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
         IUserLoginStore<TUser>,
         IUserRoleStore<TUser>,
         IUserClaimStore<TUser>,
@@ -201,16 +106,18 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
         IUserPhoneNumberStore<TUser>,
         IQueryableUserStore<TUser>,
         IUserTwoFactorStore<TUser>,
-        IUserAuthenticationTokenStore<TUser>
-        where TUser : IdentityUser<TKey, TUserClaim, TUserRole, TUserLogin>
+        IUserAuthenticationTokenStore<TUser>,
+        IUserAuthenticatorKeyStore<TUser>,
+        IUserTwoFactorRecoveryCodeStore<TUser>
+        where TUser : IdentityUser<TKey, TUserClaim, TUserRole, TUserLogin, TUserToken>
         where TRole : IdentityRole<TKey, TUserRole, TRoleClaim>
         where TContext : DbContext
         where TKey : IEquatable<TKey>
-        where TUserClaim : IdentityUserClaim<TKey>
-        where TUserRole : IdentityUserRole<TKey>
-        where TUserLogin : IdentityUserLogin<TKey>
-        where TUserToken : IdentityUserToken<TKey>
-        where TRoleClaim : IdentityRoleClaim<TKey>
+        where TUserClaim : IdentityUserClaim<TKey>, new()
+        where TUserRole : IdentityUserRole<TKey>, new()
+        where TUserLogin : IdentityUserLogin<TKey>, new()
+        where TUserToken : IdentityUserToken<TKey>, new()
+        where TRoleClaim : IdentityRoleClaim<TKey>, new()
     {
         /// <summary>
         /// Creates a new instance of <see cref="UserStore"/>.
@@ -247,38 +154,68 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
         private DbSet<TUserToken> UserTokens { get { return Context.Set<TUserToken>(); } }
 
         /// <summary>
-        /// Creates a new entity to represent a user role.
+        /// Called to create a new instance of a <see cref="IdentityUserRole{TKey}"/>.
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="role"></param>
+        /// <param name="user">The associated user.</param>
+        /// <param name="role">The associated role.</param>
         /// <returns></returns>
-        protected abstract TUserRole CreateUserRole(TUser user, TRole role);
+        protected virtual TUserRole CreateUserRole(TUser user, TRole role)
+        {
+            return new TUserRole()
+            {
+                UserId = user.Id,
+                RoleId = role.Id
+            };
+        }
 
         /// <summary>
-        /// Create a new entity representing a user claim.
+        /// Called to create a new instance of a <see cref="IdentityUserClaim{TKey}"/>.
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="claim"></param>
+        /// <param name="user">The associated user.</param>
+        /// <param name="claim">The associated claim.</param>
         /// <returns></returns>
-        protected abstract TUserClaim CreateUserClaim(TUser user, Claim claim);
+        protected virtual TUserClaim CreateUserClaim(TUser user, Claim claim)
+        {
+            var userClaim = new TUserClaim { UserId = user.Id };
+            userClaim.InitializeFromClaim(claim);
+            return userClaim;
+        }
 
         /// <summary>
-        /// Create a new entity representing a user login.
+        /// Called to create a new instance of a <see cref="IdentityUserLogin{TKey}"/>.
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="login"></param>
+        /// <param name="user">The associated user.</param>
+        /// <param name="login">The sasociated login.</param>
         /// <returns></returns>
-        protected abstract TUserLogin CreateUserLogin(TUser user, UserLoginInfo login);
+        protected virtual TUserLogin CreateUserLogin(TUser user, UserLoginInfo login)
+        {
+            return new TUserLogin
+            {
+                UserId = user.Id,
+                ProviderKey = login.ProviderKey,
+                LoginProvider = login.LoginProvider,
+                ProviderDisplayName = login.ProviderDisplayName
+            };
+        }
 
         /// <summary>
-        /// Create a new entity representing a user token.
+        /// Called to create a new instance of a <see cref="IdentityUserToken{TKey}"/>.
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="loginProvider"></param>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
+        /// <param name="user">The associated user.</param>
+        /// <param name="loginProvider">The associated login provider.</param>
+        /// <param name="name">The name of the user token.</param>
+        /// <param name="value">The value of the user token.</param>
         /// <returns></returns>
-        protected abstract TUserToken CreateUserToken(TUser user, string loginProvider, string name, string value);
+        protected virtual TUserToken CreateUserToken(TUser user, string loginProvider, string name, string value)
+        {
+            return new TUserToken
+            {
+                UserId = user.Id,
+                LoginProvider = loginProvider,
+                Name = name,
+                Value = value
+            };
+        }
 
         /// <summary>
         /// Gets or sets a flag indicating if changes should be persisted after CreateAsync, UpdateAsync and DeleteAsync are called.
@@ -593,6 +530,66 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
         }
 
         /// <summary>
+        /// Return a role with the normalized name if it exists.
+        /// </summary>
+        /// <param name="normalizedRoleName">The normalized role name.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The role if it exists.</returns>
+        protected virtual Task<TRole> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
+        {
+            return Roles.SingleOrDefaultAsync(r => r.NormalizedName == normalizedRoleName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Return a user role for the userId and roleId if it exists.
+        /// </summary>
+        /// <param name="userId">The user's id.</param>
+        /// <param name="roleId">The role's id.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user role if it exists.</returns>
+        protected virtual Task<TUserRole> FindUserRoleAsync(TKey userId, TKey roleId, CancellationToken cancellationToken)
+        {
+            return UserRoles.FindAsync(new object[] { userId, roleId }, cancellationToken);
+        }
+
+        /// <summary>
+        /// Return a user with the matching userId if it exists.
+        /// </summary>
+        /// <param name="userId">The user's id.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user if it exists.</returns>
+        protected virtual Task<TUser> FindUserAsync(TKey userId, CancellationToken cancellationToken)
+        {
+            return Users.SingleOrDefaultAsync(u => u.Id.Equals(userId), cancellationToken);
+        }
+
+        /// <summary>
+        /// Return a user login with the matching userId, provider, providerKey if it exists.
+        /// </summary>
+        /// <param name="userId">The user's id.</param>
+        /// <param name="loginProvider">The login provider name.</param>
+        /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user login if it exists.</returns>
+        protected virtual Task<TUserLogin> FindUserLoginAsync(TKey userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            return UserLogins.SingleOrDefaultAsync(userLogin => userLogin.UserId.Equals(userId) && userLogin.LoginProvider == loginProvider && userLogin.ProviderKey == providerKey, cancellationToken);
+        }
+
+        /// <summary>
+        /// Return a user login with  provider, providerKey if it exists.
+        /// </summary>
+        /// <param name="loginProvider">The login provider name.</param>
+        /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user login if it exists.</returns>
+        protected virtual Task<TUserLogin> FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            return UserLogins.SingleOrDefaultAsync(userLogin => userLogin.LoginProvider == loginProvider && userLogin.ProviderKey == providerKey, cancellationToken);
+        }
+
+
+        /// <summary>
         /// Adds the given <paramref name="normalizedRoleName"/> to the specified <paramref name="user"/>.
         /// </summary>
         /// <param name="user">The user to add the role to.</param>
@@ -611,10 +608,10 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
             {
                 throw new ArgumentException(Resources.ValueCannotBeNullOrEmpty, nameof(normalizedRoleName));
             }
-            var roleEntity = await Roles.SingleOrDefaultAsync(r => r.NormalizedName == normalizedRoleName, cancellationToken);
+            var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
             if (roleEntity == null)
             {
-                throw new InvalidOperationException(String.Format(CultureInfo.CurrentCulture, Resources.RoleNotFound, normalizedRoleName));
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.RoleNotFound, normalizedRoleName));
             }
             UserRoles.Add(CreateUserRole(user, roleEntity));
         }
@@ -638,10 +635,10 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
             {
                 throw new ArgumentException(Resources.ValueCannotBeNullOrEmpty, nameof(normalizedRoleName));
             }
-            var roleEntity = await Roles.SingleOrDefaultAsync(r => r.NormalizedName == normalizedRoleName, cancellationToken);
+            var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
             if (roleEntity != null)
             {
-                var userRole = await UserRoles.FindAsync(new object[] { user.Id, roleEntity.Id }, cancellationToken);
+                var userRole = await FindUserRoleAsync(user.Id, roleEntity.Id, cancellationToken);
                 if (userRole != null)
                 {
                     UserRoles.Remove(userRole);
@@ -691,10 +688,10 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
             {
                 throw new ArgumentException(Resources.ValueCannotBeNullOrEmpty, nameof(normalizedRoleName));
             }
-            var role = await Roles.SingleOrDefaultAsync(r => r.NormalizedName == normalizedRoleName, cancellationToken);
+            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
             if (role != null)
             {
-                var userRole = await UserRoles.FindAsync(new object[] { user.Id, role.Id }, cancellationToken);
+                var userRole = await FindUserRoleAsync(user.Id, role.Id, cancellationToken);
                 return userRole != null;
             }
             return false;
@@ -862,7 +859,7 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var entry = await UserLogins.SingleOrDefaultAsync(userLogin => userLogin.UserId.Equals(user.Id) && userLogin.LoginProvider == loginProvider && userLogin.ProviderKey == providerKey, cancellationToken);
+            var entry = await FindUserLoginAsync(user.Id, loginProvider, providerKey, cancellationToken);
             if (entry != null)
             {
                 UserLogins.Remove(entry);
@@ -904,10 +901,10 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var userLogin = await UserLogins.FindAsync(new object[] { loginProvider, providerKey }, cancellationToken);
+            var userLogin = await FindUserLoginAsync(loginProvider, providerKey, cancellationToken);
             if (userLogin != null)
             {
-                return await Users.FirstOrDefaultAsync(u => u.Id.Equals(userLogin.UserId), cancellationToken);
+                return await FindUserAsync(userLogin.UserId, cancellationToken);
             }
             return null;
         }
@@ -1263,6 +1260,10 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (stamp == null)
+            {
+                throw new ArgumentNullException(nameof(stamp));
+            }
             user.SecurityStamp = stamp;
             return TaskCache.CompletedTask;
         }
@@ -1368,7 +1369,7 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(normalizedRoleName));
             }
 
-            var role = await Roles.Where(x => x.NormalizedName == normalizedRoleName).FirstOrDefaultAsync(cancellationToken);
+            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
 
             if (role != null)
             {
@@ -1382,7 +1383,15 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
             return new List<TUser>();
         }
 
-        private Task<TUserToken> FindToken(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        /// <summary>
+        /// Find a user token if it exists.
+        /// </summary>
+        /// <param name="user">The token owner.</param>
+        /// <param name="loginProvider">The login provider for the token.</param>
+        /// <param name="name">The name of the token.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user token if it exists.</returns>
+        protected virtual Task<TUserToken> FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
             => UserTokens.FindAsync(new object[] { user.Id, loginProvider, name }, cancellationToken);
 
         /// <summary>
@@ -1404,7 +1413,7 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var token = await FindToken(user, loginProvider, name, cancellationToken);
+            var token = await FindTokenAsync(user, loginProvider, name, cancellationToken);
             if (token == null)
             {
                 UserTokens.Add(CreateUserToken(user, loginProvider, name, value));
@@ -1423,7 +1432,7 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
         /// <param name="name">The name of the token.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async Task RemoveTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        public virtual async Task RemoveTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -1432,7 +1441,7 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var entry = await FindToken(user, loginProvider, name, cancellationToken);
+            var entry = await FindTokenAsync(user, loginProvider, name, cancellationToken);
             if (entry != null)
             {
                 UserTokens.Remove(entry);
@@ -1447,7 +1456,7 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
         /// <param name="name">The name of the token.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async Task<string> GetTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        public virtual async Task<string> GetTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -1456,8 +1465,81 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var entry = await FindToken(user, loginProvider, name, cancellationToken);
+            var entry = await FindTokenAsync(user, loginProvider, name, cancellationToken);
             return entry?.Value;
+        }
+
+        private const string InternalLoginProvider = "[AspNetUserStore]";
+        private const string AuthenticatorKeyTokenName = "AuthenticatorKey";
+        private const string RecoveryCodeTokenName = "RecoveryCodes";
+
+        /// <summary>
+        /// Sets the authenticator key for the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user whose authenticator key should be set.</param>
+        /// <param name="key">The authenticator key to set.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        public virtual Task SetAuthenticatorKeyAsync(TUser user, string key, CancellationToken cancellationToken)
+        {
+            return SetTokenAsync(user, InternalLoginProvider, AuthenticatorKeyTokenName, key, cancellationToken);
+        }
+
+        /// <summary>
+        /// Get the authenticator key for the specified <paramref name="user" />.
+        /// </summary>
+        /// <param name="user">The user whose security stamp should be set.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the security stamp for the specified <paramref name="user"/>.</returns>
+        public virtual Task<string> GetAuthenticatorKeyAsync(TUser user, CancellationToken cancellationToken)
+        {
+            return GetTokenAsync(user, InternalLoginProvider, AuthenticatorKeyTokenName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Updates the recovery codes for the user while invalidating any previous recovery codes.
+        /// </summary>
+        /// <param name="user">The user to store new recovery codes for.</param>
+        /// <param name="recoveryCodes">The new recovery codes for the user.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The new recovery codes for the user.</returns>
+        public virtual Task ReplaceCodesAsync(TUser user, IEnumerable<string> recoveryCodes, CancellationToken cancellationToken)
+        {
+            var mergedCodes = string.Join(";", recoveryCodes);
+            return SetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, mergedCodes, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns whether a recovery code is valid for a user. Note: recovery codes are only valid
+        /// once, and will be invalid after use.
+        /// </summary>
+        /// <param name="user">The user who owns the recovery code.</param>
+        /// <param name="code">The recovery code to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>True if the recovery code was found for the user.</returns>
+        public virtual async Task<bool> RedeemCodeAsync(TUser user, string code, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (code == null)
+            {
+                throw new ArgumentNullException(nameof(code));
+            }
+
+            var mergedCodes = await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken) ?? "";
+            var splitCodes = mergedCodes.Split(';');
+            if (splitCodes.Contains(code))
+            {
+                var updatedCodes = new List<string>(splitCodes.Where(s => s != code));
+                await ReplaceCodesAsync(user, updatedCodes, cancellationToken);
+                return true;
+            }
+            return false;
         }
     }
 }

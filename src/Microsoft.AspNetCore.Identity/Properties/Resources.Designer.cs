@@ -251,6 +251,22 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <summary>
+        /// User security stamp cannot be null.
+        /// </summary>
+        internal static string NullSecurityStamp
+        {
+            get { return GetString("NullSecurityStamp"); }
+        }
+
+        /// <summary>
+        /// User security stamp cannot be null.
+        /// </summary>
+        internal static string FormatNullSecurityStamp()
+        {
+            return GetString("NullSecurityStamp");
+        }
+
+        /// <summary>
         /// Incorrect password.
         /// </summary>
         internal static string PasswordMismatch
@@ -411,6 +427,22 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <summary>
+        /// Store does not implement IUserAuthenticationTokenStore&lt;User&gt;.
+        /// </summary>
+        internal static string StoreNotIUserAuthenticationTokenStore
+        {
+            get { return GetString("StoreNotIUserAuthenticationTokenStore"); }
+        }
+
+        /// <summary>
+        /// Store does not implement IUserAuthenticationTokenStore&lt;User&gt;.
+        /// </summary>
+        internal static string FormatStoreNotIUserAuthenticationTokenStore()
+        {
+            return GetString("StoreNotIUserAuthenticationTokenStore");
+        }
+
+        /// <summary>
         /// Store does not implement IUserClaimStore&lt;TUser&gt;.
         /// </summary>
         internal static string StoreNotIUserClaimStore
@@ -555,6 +587,22 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <summary>
+        /// Store does not implement IUserAuthenticatorKeyStore&lt;User&gt;.
+        /// </summary>
+        internal static string StoreNotIUserAuthenticatorKeyStore
+        {
+            get { return GetString("StoreNotIUserAuthenticatorKeyStore"); }
+        }
+
+        /// <summary>
+        /// Store does not implement IUserAuthenticatorKeyStore&lt;User&gt;.
+        /// </summary>
+        internal static string FormatStoreNotIUserAuthenticatorKeyStore()
+        {
+            return GetString("StoreNotIUserAuthenticatorKeyStore");
+        }
+
+        /// <summary>
         /// Store does not implement IUserTwoFactorStore&lt;TUser&gt;.
         /// </summary>
         internal static string StoreNotIUserTwoFactorStore
@@ -568,6 +616,22 @@ namespace Microsoft.AspNetCore.Identity
         internal static string FormatStoreNotIUserTwoFactorStore()
         {
             return GetString("StoreNotIUserTwoFactorStore");
+        }
+
+        /// <summary>
+        /// Recovery code redemption failed.
+        /// </summary>
+        internal static string RecoveryCodeRedemptionFailed
+        {
+            get { return GetString("RecoveryCodeRedemptionFailed"); }
+        }
+
+        /// <summary>
+        /// Recovery code redemption failed.
+        /// </summary>
+        internal static string FormatRecoveryCodeRedemptionFailed()
+        {
+            return GetString("RecoveryCodeRedemptionFailed");
         }
 
         /// <summary>
@@ -664,6 +728,22 @@ namespace Microsoft.AspNetCore.Identity
         internal static string FormatUserNotInRole(object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UserNotInRole"), p0);
+        }
+
+        /// <summary>
+        /// Store does not implement IUserTwoFactorRecoveryCodeStore&lt;User&gt;.
+        /// </summary>
+        internal static string StoreNotIUserTwoFactorRecoveryCodeStore
+        {
+            get { return GetString("StoreNotIUserTwoFactorRecoveryCodeStore"); }
+        }
+
+        /// <summary>
+        /// Store does not implement IUserTwoFactorRecoveryCodeStore&lt;User&gt;.
+        /// </summary>
+        internal static string FormatStoreNotIUserTwoFactorRecoveryCodeStore()
+        {
+            return GetString("StoreNotIUserTwoFactorRecoveryCodeStore");
         }
 
         private static string GetString(string name, params string[] formatterNames)

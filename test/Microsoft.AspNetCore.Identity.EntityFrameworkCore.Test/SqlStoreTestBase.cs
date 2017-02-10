@@ -16,7 +16,7 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore.Test
 {
-    public abstract class SqlStoreTestBase<TUser, TRole, TKey> : UserManagerTestBase<TUser, TRole, TKey>, IClassFixture<ScratchDatabaseFixture>
+    public abstract class SqlStoreTestBase<TUser, TRole, TKey> : IdentitySpecificationTestBase<TUser, TRole, TKey>, IClassFixture<ScratchDatabaseFixture>
         where TUser : IdentityUser<TKey>, new()
         where TRole : IdentityRole<TKey>, new()
         where TKey : IEquatable<TKey>
@@ -216,6 +216,25 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore.Test
 
             roles = await userMgr.GetRolesAsync(user);
             Assert.Equal(0, roles.Count());
+        }
+
+        [ConditionalFact]
+        [FrameworkSkipCondition(RuntimeFrameworks.Mono)]
+        [OSSkipCondition(OperatingSystems.Linux)]
+        [OSSkipCondition(OperatingSystems.MacOSX)]
+        public async Task DeleteUserRemovesTokensTest()
+        {
+            // Need fail if not empty?
+            var userMgr = CreateManager();
+            var user = CreateTestUser();
+            IdentityResultAssert.IsSuccess(await userMgr.CreateAsync(user));
+            IdentityResultAssert.IsSuccess(await userMgr.SetAuthenticationTokenAsync(user, "provider", "test", "value"));
+
+            Assert.Equal("value", await userMgr.GetAuthenticationTokenAsync(user, "provider", "test"));
+
+            IdentityResultAssert.IsSuccess(await userMgr.DeleteAsync(user));
+
+            Assert.Null(await userMgr.GetAuthenticationTokenAsync(user, "provider", "test"));
         }
 
 
