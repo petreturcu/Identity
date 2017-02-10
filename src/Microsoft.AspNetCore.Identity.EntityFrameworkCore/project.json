@@ -34,5 +34,10 @@
         "System.ComponentModel.TypeConverter": "4.3.0-*"
       }
     }
+  },
+  "scripts": {
+    "postcompile": [
+      "dotnet pack --no-build --configuration %compile:Configuration%"
+    ]
   }
 }

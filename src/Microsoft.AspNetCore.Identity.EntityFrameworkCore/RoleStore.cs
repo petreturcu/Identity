@@ -13,6 +13,8 @@ using Microsoft.Extensions.Internal;
 
 namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
 {
+    using System.Linq.Expressions;
+
     /// <summary>
     /// Creates a new instance of a persistence store for roles.
     /// </summary>
@@ -299,8 +301,10 @@ namespace Microsoft.AspNetCore.Identity.EntityFrameworkCore
         /// Finds the role who has the specified ID as an asynchronous operation.
         /// </summary>
         /// <param name="id">The role ID to look for.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>A <see cref="Task{TResult}"/> that result of the look up.</returns>
+        /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>
+        /// A <see cref="Task{TResult}" /> that result of the look up.
+        /// </returns>
         public virtual Task<TRole> FindByIdAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();

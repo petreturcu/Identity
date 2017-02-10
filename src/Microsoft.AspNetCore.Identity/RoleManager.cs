@@ -262,6 +262,21 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <summary>
+        /// Finds the role associated with the specified <paramref name="roleId"/> if any.
+        /// </summary>
+        /// <param name="roleId">The role ID whose role should be returned.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the role 
+        /// associated with the specified <paramref name="roleId"/>
+        /// </returns>
+        public virtual Task<TRole> GetByIdAsync(string roleId)
+        {
+            ThrowIfDisposed();
+            return Store.GetByIdAsync(roleId, CancellationToken);
+        }
+
+
+        /// <summary>
         /// Gets the name of the specified <paramref name="role"/>.
         /// </summary>
         /// <param name="role">The role whose name should be retrieved.</param>

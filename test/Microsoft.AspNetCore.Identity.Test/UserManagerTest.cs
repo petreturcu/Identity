@@ -1068,8 +1068,6 @@ namespace Microsoft.AspNetCore.Identity.Test
                 return Task.FromResult<TestUser>(null);
             }
 
-
-
             public Task SetPasswordHashAsync(TestUser user, string passwordHash, CancellationToken cancellationToken = default(CancellationToken))
             {
                 return Task.FromResult(0);
